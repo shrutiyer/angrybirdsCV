@@ -7,7 +7,7 @@ from helpers import *
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
-
+points = 0
 class PyManMain():
     """The Main PyMan Class - This class handles the main 
     initialization and creating of the Game."""
@@ -46,18 +46,33 @@ class PyManMain():
                     or (event.key == K_DOWN)):
                         self.bird.move(event.key)
                         
-                self.bird_sprites.draw(self.screen)
-                pygame.display.flip()
+            """Check for collision"""
+            lstCols = pygame.sprite.spritecollide(self.bird, self.dart_sprites, True)
+            global points
+            points = points + 90*len(lstCols)
 
-                """Do the Drawing"""               
-                self.screen.blit(self.background, (0, 0))    
-                self.bird_sprites.draw(self.screen)
-                pygame.display.flip()
+            self.bird_sprites.draw(self.screen)
+            pygame.display.flip()
+
+            """Do the Drawing"""               
+            self.screen.blit(self.background, (0, 0))   
+            if pygame.font:
+                font = pygame.font.Font(None, 36)
+                text = font.render("Score %s" % points, 1, (255, 0, 0))
+                textpos = text.get_rect(centerx=self.background.get_width()/2)
+                self.screen.blit(text, textpos)
+
+            self.bird_sprites.draw(self.screen)
+            self.dart_sprites.draw(self.screen)
+            pygame.display.flip()
                     
     def LoadSprites(self):
         self.bird = Bird()
         self.bird_sprites = pygame.sprite.RenderPlain((self.bird))
-            
+        
+
+        self.dart = Dart()
+        self.dart_sprites = pygame.sprite.RenderPlain((self.dart))          
         
 class Bird(pygame.sprite.Sprite):
     """This is our bird that will move around the screen"""
@@ -82,6 +97,15 @@ class Bird(pygame.sprite.Sprite):
         elif (key == K_DOWN):
             yMove = self.y_dist
         self.rect = self.rect.move(xMove,yMove)
+
+
+class Dart(pygame.sprite.Sprite):
+        
+    def __init__(self, rect=None):
+        pygame.sprite.Sprite.__init__(self) 
+        self.image, self.rect = load_image('eye.png',-1)
+        self.rect.x = 750
+        self.rect.y = 400
         
 if __name__ == "__main__":
     MainWindow = PyManMain()
