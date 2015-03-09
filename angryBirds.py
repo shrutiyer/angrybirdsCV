@@ -7,7 +7,9 @@ from helpers import *
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
+
 points = 0
+
 class PyManMain():
     """The Main PyMan Class - This class handles the main 
     initialization and creating of the Game."""
@@ -43,7 +45,8 @@ class PyManMain():
                     if ((event.key == K_RIGHT)
                     or (event.key == K_LEFT)
                     or (event.key == K_UP)
-                    or (event.key == K_DOWN)):
+                    or (event.key == K_DOWN)
+                    or (event.key == K_SPACE)):
                         self.bird.move(event.key)
                         
             """Check for collision"""
@@ -63,6 +66,7 @@ class PyManMain():
                 self.screen.blit(text, textpos)
 
             self.bird_sprites.draw(self.screen)
+            self.dot_sprites.draw(self.screen)
             self.dart_sprites.draw(self.screen)
             pygame.display.flip()
                     
@@ -72,7 +76,11 @@ class PyManMain():
         
 
         self.dart = Dart()
-        self.dart_sprites = pygame.sprite.RenderPlain((self.dart))          
+        self.dart_sprites = pygame.sprite.RenderPlain((self.dart))
+
+        self.dot = Dot()
+        self.dot_sprites = pygame.sprite.RenderPlain((self.dot))
+           
         
 class Bird(pygame.sprite.Sprite):
     """This is our bird that will move around the screen"""
@@ -80,14 +88,14 @@ class Bird(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) 
         self.image, self.rect = load_image('angry_bird.png',-1)
-        self.x_dist = 5
-        self.y_dist = 5 
+        self.x_dist = 1
+        self.y_dist = 1
+        self.rect.center = (150,400)
         
     def move(self, key):
         """Move yourself in one of the 4 directions according to key"""
         xMove = 0;
         yMove = 0;
-        
         if (key == K_RIGHT):
             xMove = self.x_dist
         elif (key == K_LEFT):
@@ -98,15 +106,20 @@ class Bird(pygame.sprite.Sprite):
             yMove = self.y_dist
         self.rect = self.rect.move(xMove,yMove)
 
-
 class Dart(pygame.sprite.Sprite):
         
     def __init__(self, rect=None):
         pygame.sprite.Sprite.__init__(self) 
         self.image, self.rect = load_image('eye.png',-1)
-        self.rect.x = 750
-        self.rect.y = 400
+        self.rect.center = (750,400)
         
+class Dot(pygame.sprite.Sprite):
+        
+    def __init__(self, rect=None):
+        pygame.sprite.Sprite.__init__(self) 
+        self.image, self.rect = load_image('Center.png',-1)
+        self.rect.center = (150,400)
+
 if __name__ == "__main__":
     MainWindow = PyManMain()
     MainWindow.MainLoop()
