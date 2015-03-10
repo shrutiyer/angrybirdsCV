@@ -47,7 +47,11 @@ class PyManMain:
         while 1:
             clock.tick(60)
             global last_time
-            last_update_time = pygame.time.get_ticks()
+            # print 'Last ',last_time
+            # print 'Current ',pygame.time.get_ticks()/1000.0
+            delta_t = (pygame.time.get_ticks()/1000.0 -last_time)
+            last_time = delta_t
+            #last_update_time = pygame.time.get_ticks()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: 
                     sys.exit()
@@ -57,7 +61,7 @@ class PyManMain:
                     or (event.key == K_LEFT)
                     or (event.key == K_DOWN)
                     or (event.key == K_UP)):
-                        self.bird.move(event.key)
+                        self.bird.move(event.key,delta_t)
             
             """Check for collision"""
             lstCols = pygame.sprite.spritecollide(self.bird, self.dart_sprites, True)
@@ -104,12 +108,13 @@ class Bird(pygame.sprite.Sprite):
         self.v_x = 0
         self.v_y = 0
         
-    def move(self, key):
+    def move(self, key, delta_t):
         """Move yourself in one of the 4 directions according to key"""
         xMove = 0;
         yMove = 0;
         global x_pos
         global y_pos
+        global last_time
         #rot_image,new_rect = load_image('angry_bird.png',-1)
         if (key == K_RIGHT):
             xMove = self.x_dist
@@ -135,12 +140,11 @@ class Bird(pygame.sprite.Sprite):
             if x_mag == 0:
                 x_mag = 0.001
             angle = -math.atan(float(y_mag)/x_mag)
-            global last_time
-            delta_t = (pygame.time.get_ticks() - last_time)/1000.0
-            print delta_t
+            print 'Delta ',delta_t
             xMove += x_mag*delta_t 
             yMove += y_mag*delta_t-(5*delta_t**2)
             self.v_y += delta_t*50
+            last_time = delta_t
 
         self.rect = self.rect.move(xMove,yMove)
 
