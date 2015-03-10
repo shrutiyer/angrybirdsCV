@@ -1,10 +1,11 @@
 #! /usr/bin/env python
 
-import os, sys
+#import os, sys
 import pygame
 from pygame.locals import *
 from helpers import *
 import math
+import time
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -12,6 +13,9 @@ if not pygame.mixer: print 'Warning, sound disabled'
 points = 0
 y_pos=400
 x_pos=250
+delta_t = 5
+clock = pygame.time.Clock()
+last_time = 0
 
 class PyManMain:
     """The Main PyMan Class - This class handles the main 
@@ -41,6 +45,9 @@ class PyManMain:
         self.background.fill((0,0,0))
         
         while 1:
+            clock.tick(60)
+            global last_time
+            last_update_time = pygame.time.get_ticks()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: 
                     sys.exit()
@@ -93,7 +100,9 @@ class Bird(pygame.sprite.Sprite):
         self.image, self.rect = load_image('angry_bird.png',-1)
         self.x_dist = 1
         self.y_dist = 1
-        self.rect.center = (250,400)
+        self.rect.center = (x_pos,y_pos)
+        self.v_x = 0
+        self.v_y = 0
         
     def move(self, key):
         """Move yourself in one of the 4 directions according to key"""
@@ -125,7 +134,13 @@ class Bird(pygame.sprite.Sprite):
             x_mag = dots.rect.center[0]-x_pos
             if x_mag == 0:
                 x_mag = 0.001
-            angle = -(math.atan(float(y_mag)/x_mag))*(180.0/math.pi)
+            angle = -math.atan(float(y_mag)/x_mag)
+            global last_time
+            delta_t = (pygame.time.get_ticks() - last_time)/1000.0
+            print delta_t
+            xMove += x_mag*delta_t 
+            yMove += y_mag*delta_t-(5*delta_t**2)
+            self.v_y += delta_t*50
 
         self.rect = self.rect.move(xMove,yMove)
 
