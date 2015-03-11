@@ -11,13 +11,12 @@ if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
 points = 0
-y_pos=400
-x_pos=250
-delta_t = 5
-#clock = pygame.time.Clock()
+origin_x = 250
+origin_y = 400
 last_time = 0
 height = 800
 width = 1000
+delta_t = 0
 
 class PyManMain:
     """The Main PyMan Class - This class handles the main 
@@ -51,7 +50,7 @@ class PyManMain:
         running = True
         while running:
             #clock.tick(60)
-            global last_time
+            global last_time,delta_t
             # print 'Last ',last_time
             # print 'Current ',pygame.time.get_ticks()/1000.0
             delta_t = (pygame.time.get_ticks()/1000.0 -last_time)
@@ -69,7 +68,7 @@ class PyManMain:
                     or (event.key == K_LEFT)
                     or (event.key == K_DOWN)
                     or (event.key == K_UP)):
-                        self.bird.move(event.key,delta_t)
+                        self.bird.move(event.key)
             self.bird.update()
 
             """Check for collision"""
@@ -105,75 +104,80 @@ class PyManMain:
            
 class Bird(pygame.sprite.Sprite):
     """This is our bird that will move around the screen"""
-    
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) 
+        self.x_pos = 250
+        self.y_pos = 400
         self.image, self.rect = load_image('angry_bird.png',-1)
         self.x_dist = 2
         self.y_dist = 2
-        self.rect.center = (x_pos,y_pos)
+        self.rect.center = (self.x_pos,self.y_pos)
         self.v_x = 0
         self.v_y = 0
 
     #def reinit(self):
 
         
-    def move(self, key, delta_t):
+    def move(self, key):
         """Move yourself in one of the 4 directions according to key"""
-        xMove = 0;
-        yMove = 0;
-        global x_pos
-        global y_pos
+        self.xMove = 0;
+        self.yMove = 0;
         global last_time
         #rot_image,new_rect = load_image('angry_bird.png',-1)
         if (key == K_RIGHT):
-            xMove = self.x_dist
-            x_pos+=xMove
+            self.xMove = self.x_dist
+            self.x_pos+=self.xMove
         elif (key == K_LEFT):
-            xMove = -self.x_dist
-            x_pos+=xMove
+            self.xMove = -self.x_dist
+            self.x_pos+=self.xMove
         elif (key == K_UP):
-            yMove = -self.y_dist
-            y_pos+=yMove
+            self.yMove = -self.y_dist
+            self.y_pos+=self.yMove
             """self.image = pygame.transform.rotate(rot_image,50)
             self.rect = self.image.get_rect(center=self.rect.center)"""
         elif (key == K_DOWN):
-            yMove = self.y_dist
-            y_pos+=yMove
+            self.yMove = self.y_dist
+            self.y_pos+=self.yMove
             """self.image = pygame.transform.rotate(rot_image,-5)
             self.rect = self.image.get_rect(center=self.rect.center)"""
         elif (key == K_SPACE):
             #calculate velocity, etc
             dots = Dot()
-            y_mag = dots.rect.center[1]-y_pos
-            x_mag = dots.rect.center[0]-x_pos
-            if x_mag == 0:
-                x_mag = 0.001
-            angle = -math.atan(float(y_mag)/x_mag)
-            print 'Delta ',delta_t
-            xMove += x_mag*delta_t 
-            yMove += y_mag*delta_t-(5*delta_t**2)
+            self.y_mag = dots.rect.center[1]-self.y_pos
+            self.x_mag = dots.rect.center[0]-self.x_pos
+            if self.x_mag == 0:
+                self.x_mag = 0.001
+            #angle = -math.atan(float(y_mag)/x_mag)
+            global delta_t,last_time
+            self.xMove += self.x_mag*delta_t 
+            self.yMove += self.y_mag*delta_t-(5*delta_t**2)
             #self.v_y -= delta_t*50\
-            self.v_x = x_mag*0.05
-            self.v_y = y_mag*0.05
-            print "LAUNCHING!"
+            self.v_x = self.x_mag*0.05
+            self.v_y = self.y_mag*0.05
+            #print "LAUNCHING!"
+            print 'x_mag is', self.x_mag, 'y_mag is', self.y_mag, 'self.yMove is', self.yMove, 'self.xMove is', self.xMove, 'v_y is', self.v_y, 'v_x is', self.v_x
             last_time = delta_t
-
-        self.rect = self.rect.move(xMove,yMove)
+            
+        self.rect = self.rect.move(self.xMove,self.yMove)
         print self.rect.center
 
     def in_flight(self):
         return self.v_y != 0
 
     def reset(self):
-        self.rect.y = y_pos
-        self.rect.x = x_pos
-        print self.rect
+        global origin_x,origin_y
+        self.rect.center = (origin_x,origin_y)
+        self.v_x = 0
+        self.v_y = 0
+        self.xMove = 0
+        self.yMove = 0
+        self.y_mag = 0
+        self.x_mag = 0
 
     def update(self):
-        xMove = self.v_x
-        yMove = self.v_y
-        self.rect = self.rect.move(xMove,yMove)
+        self.xMove = self.v_x
+        self.yMove = self.v_y
+        self.rect = self.rect.move(self.xMove,self.yMove)
         global height,width
         if (self.rect.centerx > width) or (self.rect.centerx < 0) or (self.rect.centery > height) or (self.rect.centery < 0):
             self.reset()
