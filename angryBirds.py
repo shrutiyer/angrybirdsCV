@@ -40,11 +40,13 @@ class PyManMain:
         pygame.key.set_repeat(1,1)
         
         """Create the background"""
-        self.background = pygame.Surface(self.screen.get_size())
-        self.background = self.background.convert()
-        self.background.fill((0,0,0))
-        
-        while 1:
+        self.background = pygame.image.load('background.png').convert()
+        # self.image, self.rect = load_image('background.png',-1)
+        # self.background = pygame.Surface(self.screen.get_size())
+        # self.background = self.background.convert()
+        #self.background.fill((0,0,0))
+        running = True
+        while running:
             #clock.tick(60)
             global last_time
             # print 'Last ',last_time
@@ -56,7 +58,7 @@ class PyManMain:
                 if self.bird.in_flight():
                     break
                 if event.type == pygame.QUIT: 
-                    sys.exit()
+                    running = False
                 elif event.type == KEYDOWN:
                     if ((event.key == K_SPACE)
                     or (event.key == K_RIGHT)
@@ -70,11 +72,11 @@ class PyManMain:
             global points
             points = points + 90*len(lstCols)
 
-            self.bird_sprites.draw(self.screen)
-            pygame.display.flip()
+            # self.bird_sprites.draw(self.screen)
+            # pygame.display.flip()
 
             """Do the Drawing"""               
-            self.screen.blit(self.background, (0, 0))   
+            #self.screen.blit(self.background, (0, 0))   
             if pygame.font:
                 font = pygame.font.Font(None, 36)
                 text = font.render("Score %s" % points, 1, (255, 0, 0))
@@ -84,9 +86,12 @@ class PyManMain:
             self.bird_sprites.draw(self.screen)
             self.dot_sprites.draw(self.screen)
             self.dart_sprites.draw(self.screen)
+            
             #Physics().draw(self.screen)
             pygame.display.flip()
-                    
+            self.screen.blit(self.background, [0,0])
+        pygame.quit()
+
     def LoadSprites(self):
         self.bird = Bird()
         self.bird_sprites = pygame.sprite.RenderPlain((self.bird))
@@ -104,8 +109,8 @@ class Bird(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) 
         self.image, self.rect = load_image('angry_bird.png',-1)
-        self.x_dist = 1
-        self.y_dist = 1
+        self.x_dist = 2
+        self.y_dist = 2
         self.rect.center = (x_pos,y_pos)
         self.v_x = 0
         self.v_y = 0
@@ -188,3 +193,4 @@ class Dot(pygame.sprite.Sprite):
 if __name__ == "__main__":
     MainWindow = PyManMain()
     MainWindow.MainLoop()
+
