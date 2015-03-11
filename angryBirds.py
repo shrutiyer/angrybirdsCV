@@ -114,6 +114,9 @@ class Bird(pygame.sprite.Sprite):
         self.rect.center = (x_pos,y_pos)
         self.v_x = 0
         self.v_y = 0
+
+    #def reinit(self):
+
         
     def move(self, key, delta_t):
         """Move yourself in one of the 4 directions according to key"""
@@ -162,22 +165,20 @@ class Bird(pygame.sprite.Sprite):
     def in_flight(self):
         return self.v_y != 0
 
+    def reset(self):
+        self.rect.y = y_pos
+        self.rect.x = x_pos
+        print self.rect
+
     def update(self):
         xMove = self.v_x
         yMove = self.v_y
+        self.rect = self.rect.move(xMove,yMove)
         global height,width
-        if (self.rect.centerx > width) or (self.rect.centerx < width):
-            print 'y'
+        if (self.rect.centerx > width) or (self.rect.centerx < 0) or (self.rect.centery > height) or (self.rect.centery < 0):
+            self.reset()
         if self.in_flight():
             self.v_y += 0.2
-
-class Physics:
-    def __init__(self,rect=None):
-        birdy = Bird()
-        dots = Dot()
-        pmm = PyManMain()
-        pmm.MainLoop()
-        pygame.draw.line(pmm.screen,[0,255,0],dots.rect.center,birdy.rect.center)
 
 class Dart(pygame.sprite.Sprite):
     def __init__(self, rect=None):
