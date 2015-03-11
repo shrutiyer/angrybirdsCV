@@ -16,15 +16,18 @@ x_pos=250
 delta_t = 5
 #clock = pygame.time.Clock()
 last_time = 0
+height = 800
+width = 1000
 
 class PyManMain:
     """The Main PyMan Class - This class handles the main 
     initialization and creating of the Game."""
     
-    def __init__(self, width=1000,height=800):
+    def __init__(self):
         """Initialize PyGame"""
         pygame.init()
         """Set the window Size"""
+        global height,width
         self.width = width
         self.height = height
         """Create the Screen"""
@@ -55,11 +58,12 @@ class PyManMain:
             last_time = delta_t
             #last_update_time = pygame.time.get_ticks()
             for event in pygame.event.get():
-                if self.bird.in_flight():
-                    break
                 if event.type == pygame.QUIT: 
                     running = False
+                    break
                 elif event.type == KEYDOWN:
+                    if self.bird.in_flight():
+                        break
                     if ((event.key == K_SPACE)
                     or (event.key == K_RIGHT)
                     or (event.key == K_LEFT)
@@ -67,16 +71,13 @@ class PyManMain:
                     or (event.key == K_UP)):
                         self.bird.move(event.key,delta_t)
             self.bird.update()
+
             """Check for collision"""
             lstCols = pygame.sprite.spritecollide(self.bird, self.dart_sprites, True)
             global points
             points = points + 90*len(lstCols)
 
-            # self.bird_sprites.draw(self.screen)
-            # pygame.display.flip()
-
             """Do the Drawing"""               
-            #self.screen.blit(self.background, (0, 0))   
             if pygame.font:
                 font = pygame.font.Font(None, 36)
                 text = font.render("Score %s" % points, 1, (255, 0, 0))
@@ -86,11 +87,10 @@ class PyManMain:
             self.bird_sprites.draw(self.screen)
             self.dot_sprites.draw(self.screen)
             self.dart_sprites.draw(self.screen)
-            
-            #Physics().draw(self.screen)
             pygame.display.flip()
             self.screen.blit(self.background, [0,0])
-        pygame.quit()
+
+        sys.QUIT()
 
     def LoadSprites(self):
         self.bird = Bird()
@@ -165,7 +165,9 @@ class Bird(pygame.sprite.Sprite):
     def update(self):
         xMove = self.v_x
         yMove = self.v_y
-        self.rect = self.rect.move(xMove,yMove)
+        global height,width
+        if (self.rect.centerx > width) or (self.rect.centerx < width):
+            print 'y'
         if self.in_flight():
             self.v_y += 0.2
 
