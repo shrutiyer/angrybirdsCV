@@ -19,6 +19,22 @@ class AngryModel():
     def update(self):
         self.bird.update()
 
+class DrawableSurface():
+    """ A class that wraps a pygame.Surface and a pygame.Rect """
+
+    def __init__(self, surface, rect):
+        """ Initialize the drawable surface """
+        self.surface = surface
+        self.rect = rect
+
+    def get_surface(self):
+        """ Get the surface """
+        return self.surface
+
+    def get_rect(self):
+        """ Get the rect """
+        return self.rect
+
 class Bird():
     """This is our bird that will move around the screen"""
     def __init__(self,pos_x,pos_y):
@@ -31,18 +47,23 @@ class Bird():
         self.image = pygame.image.load('data/images/angry_bird.png')
         self.image.set_colorkey((255,255,255))
 
+    def update(self):
+        """ update the flappy bird's position """
+        self.pos_x += self.v_x
+        self.pos_y += self.v_y
+        #self.v_y += delta_t*100 # this is gravity in pixels / s^2
+
 class PyGameWindowView():
     """ A view of angry birds rendered in a Pygame window """
-    def __init__(self,model,screen):
+    def __init__(self,model,width,height):
+        pygame.init()
+        self.screen = pygame.display.set_mode((width, height))
+        self.screen_boundaries = pygame.Rect(0 ,0, width, height)
         self.model = model
-        self.screen = screen
         
-    # def draw(self):
-    #     self.screen.fill(pygame.Color(0,0,0))
-    #     for brick in self.model.bricks:
-    #         pygame.draw.rect(self.screen, pygame.Color(brick.color[0],brick.color[1],brick.color[2]),pygame.Rect(brick.x,brick.y,brick.width,brick.height))
-    #     pygame.draw.rect(self.screen, pygame.Color(self.model.paddle.color[0],self.model.paddle.color[1],self.model.paddle.color[2]),pygame.Rect(self.model.paddle.x,self.model.paddle.y,self.model.paddle.width,self.model.paddle.height))     
-    #     pygame.display.update()
+    def draw(self):
+        self.screen.fill(pygame.Color(50,0,0))
+        pygame.display.update()
 
 class PyGameKeyboardController():
     """ Handles keyboard input for angrybirds"""
@@ -69,26 +90,18 @@ class AngryBirds():
         size = (1280,846)
         screen = pygame.display.set_mode(size)
         self.model = AngryModel(1280,846)
-        self.view = PyGameWindowView(self.model,screen)
-        self.controller = PygameKeyboardController(self.model)
+        self.view = PyGameWindowView(self.model,1280,846)
+        self.controller = PyGameKeyboardController(self.model)
 
-        running = True
-
-        while running:
-            screen.fill((255, 64, 64))
-            screen.blit(img,(0,0))
-            pygame.display.flip()
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    running = False
-                if event.type == KEYDOWN:
-                   controller.handle_keyboard_event(event)
-
-            model.update()
-            view.draw()
-            time.sleep(.001)
-        
-        pygame.quit()
+    def run(self):
+        frame_count = 0
+        self.view.draw()
+        for event in pygame.event.get():
+            # if event.type == QUIT:
+            #     running = False
+            if event.type == KEYDOWN:
+                self.controller.handle_keyboard_event()
+        self.model.update()       
 
 if __name__ == "__main__":
     angry = AngryBirds()

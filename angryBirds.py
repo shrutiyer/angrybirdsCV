@@ -14,7 +14,7 @@ points = 0
 y_pos=400
 x_pos=250
 delta_t = 5
-clock = pygame.time.Clock()
+#clock = pygame.time.Clock()
 last_time = 0
 
 class PyManMain:
@@ -45,7 +45,7 @@ class PyManMain:
         self.background.fill((0,0,0))
         
         while 1:
-            clock.tick(60)
+            #clock.tick(60)
             global last_time
             # print 'Last ',last_time
             # print 'Current ',pygame.time.get_ticks()/1000.0
@@ -53,6 +53,8 @@ class PyManMain:
             last_time = delta_t
             #last_update_time = pygame.time.get_ticks()
             for event in pygame.event.get():
+                if self.bird.in_flight():
+                    break
                 if event.type == pygame.QUIT: 
                     sys.exit()
                 elif event.type == KEYDOWN:
@@ -62,7 +64,7 @@ class PyManMain:
                     or (event.key == K_DOWN)
                     or (event.key == K_UP)):
                         self.bird.move(event.key,delta_t)
-            
+            self.bird.update()
             """Check for collision"""
             lstCols = pygame.sprite.spritecollide(self.bird, self.dart_sprites, True)
             global points
@@ -143,10 +145,24 @@ class Bird(pygame.sprite.Sprite):
             print 'Delta ',delta_t
             xMove += x_mag*delta_t 
             yMove += y_mag*delta_t-(5*delta_t**2)
-            self.v_y += delta_t*50
+            #self.v_y -= delta_t*50\
+            self.v_x = x_mag*0.05
+            self.v_y = y_mag*0.05
+            print "LAUNCHING!"
             last_time = delta_t
 
         self.rect = self.rect.move(xMove,yMove)
+        print self.rect.center
+
+    def in_flight(self):
+        return self.v_y != 0
+
+    def update(self):
+        xMove = self.v_x
+        yMove = self.v_y
+        self.rect = self.rect.move(xMove,yMove)
+        if self.in_flight():
+            self.v_y += 0.2
 
 class Physics:
     def __init__(self,rect=None):
