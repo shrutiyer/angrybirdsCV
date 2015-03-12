@@ -6,6 +6,7 @@ from pygame.locals import *
 from helpers import *
 import math
 import time
+import random
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -118,8 +119,8 @@ class Bird(pygame.sprite.Sprite):
         self.x_pos = 250
         self.y_pos = 400
         self.image, self.rect = load_image('angry_bird.png',-1)
-        self.x_dist = 2
-        self.y_dist = 2
+        self.x_dist = 4
+        self.y_dist = 4
         self.rect.center = (self.x_pos,self.y_pos)
         self.v_x = 0
         self.v_y = 0
@@ -179,7 +180,6 @@ class Bird(pygame.sprite.Sprite):
         #print self.rect.center
 
     def launch(self):
-        print 'x_mag is', self.x_mag, 'y_mag is', self.y_mag, 'self.yMove is', self.yMove, 'self.xMove is', self.xMove, 'v_y is', self.v_y, 'v_x is', self.v_x
         #calculate velocity, etc
         dots = Dot()
         self.y_mag = dots.rect.center[1]-self.y_pos
@@ -191,8 +191,8 @@ class Bird(pygame.sprite.Sprite):
         self.xMove += self.x_mag #*delta_t 
         self.yMove += self.y_mag #*delta_t-(5*delta_t**2)
         #self.v_y -= delta_t*50\
-        self.v_x = self.x_mag*0.05
-        self.v_y = self.y_mag*0.05
+        self.v_x = self.x_mag*0.075
+        self.v_y = self.y_mag*0.075
         #print "LAUNCHING!"
         self.rect = self.rect.move(self.xMove,self.yMove)
                 
@@ -221,6 +221,7 @@ class Bird(pygame.sprite.Sprite):
             self.reset()
         if self.in_flight():
             self.v_y += 0.2
+        pygame.time.delay(10)
 
 class Dart(pygame.sprite.Sprite):
     def __init__(self, rect=None):
@@ -230,7 +231,7 @@ class Dart(pygame.sprite.Sprite):
         self.delta = 1
 
     def update(self):
-        self.rect.center = (750,400)
+        self.rect.center = (750,height/5)
 
     def move_dart(self):
         global level
@@ -242,11 +243,17 @@ class Dart(pygame.sprite.Sprite):
                self.delta = 1
         elif level == 1:
             self.rect.centery+=self.delta
-            if self.rect.centery <= -height: 
-               self.delta = -1
-            elif self.rect.centerx > height:
-               self.delta = 1
-        #elif self.nextLevel == 2:
+            if self.rect.centery <= height/5: 
+               self.delta = 2
+            elif self.rect.centery > (4*height)/5:
+               self.delta = -2
+        elif level == 2:
+            rand_xy = random.choice[self.rect.centerx, self.rect.centery]
+            rand_xy+=self.delta
+            if rand_xy <= height/5: 
+                self.delta = randint(1,5)
+            elif rand_xy > (4*height)/5:
+                self.delta = -randint(1,5)
         
 class Dot(pygame.sprite.Sprite):     
     def __init__(self, rect=None):
