@@ -17,6 +17,7 @@ last_time = 0
 height = 800
 width = 1000
 delta_t = 0
+level = 0
 
 class PyManMain:
     """The Main PyMan Class - This class handles the main 
@@ -76,6 +77,12 @@ class PyManMain:
             global points
             points = points + 90*len(lstCols)
 
+            self.dart.move_dart()
+            if lstCols:
+                global level
+                level+=1
+                self.dart.update()
+
             """Do the Drawing"""               
             if pygame.font:
                 font = pygame.font.Font(None, 36)
@@ -95,7 +102,6 @@ class PyManMain:
         self.bird = Bird()
         self.bird_sprites = pygame.sprite.RenderPlain((self.bird))
         
-
         self.dart = Dart()
         self.dart_sprites = pygame.sprite.RenderPlain((self.dart))
 
@@ -114,10 +120,9 @@ class Bird(pygame.sprite.Sprite):
         self.rect.center = (self.x_pos,self.y_pos)
         self.v_x = 0
         self.v_y = 0
+        self.x_mag = 0
+        self.y_mag = 0
 
-    #def reinit(self):
-
-        
     def move(self, key):
         """Move yourself in one of the 4 directions according to key"""
         global last_time
@@ -186,7 +191,28 @@ class Dart(pygame.sprite.Sprite):
     def __init__(self, rect=None):
         pygame.sprite.Sprite.__init__(self) 
         self.image, self.rect = load_image('eye.png',-1)
+        self.rect.center = (800,400)
+        self.delta = 1
+
+    def update(self):
         self.rect.center = (750,400)
+        self.delta = 1
+
+    def move_dart(self):
+        global level
+        if level == 0:
+            self.rect.centerx+=self.delta
+            if self.rect.centerx >= width: 
+               self.delta = -1
+            elif self.rect.centerx < width/2:
+               self.delta = 1
+        elif level == 1:
+            self.rect.centery+=self.delta
+            if self.rect.centery <= -height: 
+               self.delta = -1
+            elif self.rect.centerx > height:
+               self.delta = 1
+        #elif self.nextLevel == 2:
         
 class Dot(pygame.sprite.Sprite):
      
