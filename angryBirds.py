@@ -80,7 +80,7 @@ class PyManMain:
             if pygame.font:
                 font = pygame.font.Font(None, 36)
                 text = font.render("Score %s" % points, 1, (255, 0, 0))
-                textpos = text.get_rect(centerx=self.background.get_width()/2)
+                textpos = text.get_rect(centerx=self.background.get_width()/2.0)
                 self.screen.blit(text, textpos)
 
             self.bird_sprites.draw(self.screen)
@@ -120,8 +120,6 @@ class Bird(pygame.sprite.Sprite):
         
     def move(self, key):
         """Move yourself in one of the 4 directions according to key"""
-        self.xMove = 0;
-        self.yMove = 0;
         global last_time
         #rot_image,new_rect = load_image('angry_bird.png',-1)
         if (key == K_RIGHT):
