@@ -1,22 +1,16 @@
 #! /usr/bin/env python
 
-#import os, sys
+import sys
 import pygame
 from pygame.locals import *
 from helpers import *
 import math
-import time
 import random
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
-points = 0
-origin_x = 250
-origin_y = 400
 last_time = 0
-height = 800
-width = 1000
 delta_t = 0
 level = 0
 
@@ -28,15 +22,15 @@ class PyManMain:
         """Initialize PyGame"""
         pygame.init()
         """Set the window Size"""
-        global height,width
-        self.width = width
-        self.height = height
+        self.width = 1000
+        self.height = 800
         """Create the Screen"""
         self.screen = pygame.display.set_mode((self.width, self.height))
-                                                          
+        self.bird = Bird()
+        self.points = 0
+                           
     def MainLoop(self):
         """This is the Main Loop of the Game"""
-        
         """Load All of our Sprites"""
         self.LoadSprites();
         """tell pygame to keep sending up keystrokes when they are
@@ -78,8 +72,7 @@ class PyManMain:
 
             """Check for collision"""
             lstCols = pygame.sprite.spritecollide(self.bird, self.dart_sprites, False)
-            global points
-            points = points + 90*len(lstCols)
+            self.points = self.points + 90*len(lstCols)
 
             self.dart.move_dart()
             if lstCols:
@@ -89,9 +82,12 @@ class PyManMain:
 
             """Do the Drawing"""               
             if pygame.font:
-                font = pygame.font.Font(None, 36)
-                text = font.render("Score %s" % points, 1, (255, 0, 0))
-                textpos = text.get_rect(centerx=self.background.get_width()/2.0)
+                font = pygame.font.Font(None, 54)
+                text = font.render("Lives: %s" % self.bird.currentLives, 1, (255, 0, 0))
+                textpos = text.get_rect(centerx=100,centery=40)
+                self.screen.blit(text, textpos)
+                text = font.render("Score: %s" % self.points, 1, (255, 0, 0))
+                textpos = text.get_rect(centerx=890,centery=40)
                 self.screen.blit(text, textpos)
 
             self.bird_sprites.draw(self.screen)
@@ -128,7 +124,7 @@ class Bird(pygame.sprite.Sprite):
         self.y_mag = 0
         self.yMove = 0
         self.xMove = 0
-        self.i = 0
+        self.currentLives = 5
 
     def move(self, key):
         """Move yourself in one of the 4 directions according to key"""
@@ -188,8 +184,8 @@ class Bird(pygame.sprite.Sprite):
         self.xMove += self.x_mag #*delta_t 
         self.yMove += self.y_mag #*delta_t-(5*delta_t**2)
         #self.v_y -= delta_t*50\
-        self.v_x = self.x_mag*0.075
-        self.v_y = self.y_mag*0.075
+        self.v_x = self.x_mag*0.065
+        self.v_y = self.y_mag*0.065
         #print "LAUNCHING!"
         self.rect = self.rect.move(self.xMove,self.yMove)
                 
@@ -197,23 +193,20 @@ class Bird(pygame.sprite.Sprite):
         return self.v_y != 0
 
     def reset(self):
-        global origin_x,origin_y
-        self.rect.center = (origin_x,origin_y)
+        self.rect.center = (250,400)
         self.v_x = 0
         self.v_y = 0
-        #self.xMove = 0
-        # self.yMove = 0
-        # self.y_mag = 0
-        # self.x_mag = 0
         self.x_pos = 250
         self.y_pos = 400
+        self.currentLives-=1
+        if self.currentLives == 0:
+            sys.QUIT()
 
     def update(self):
         self.xMove = self.v_x
         self.yMove = self.v_y
         self.rect = self.rect.move(self.xMove,self.yMove)
-        global height,width
-        if (self.rect.centerx > width) or (self.rect.centerx < 0) or (self.rect.centery > height) or (self.rect.centery < 0):
+        if (self.rect.centerx > 1000) or (self.rect.centerx < 0) or (self.rect.centery > 800) or (self.rect.centery < 0):
             self.reset()
         if self.in_flight():
             self.v_y += 0.2
@@ -227,28 +220,28 @@ class Dart(pygame.sprite.Sprite):
         self.delta = 1
 
     def update(self):
-        self.rect.center = (750,height/5)
+        self.rect.center = (750,200/5)
 
     def move_dart(self):
         global level
         if level == 0:
             self.rect.centerx+=self.delta
-            if self.rect.centerx >= width: 
+            if self.rect.centerx >= 1000: 
                self.delta = -1
-            elif self.rect.centerx < width/2:
+            elif self.rect.centerx < 500:
                self.delta = 1
         elif level == 1:
             self.rect.centery+=self.delta
-            if self.rect.centery <= height/5: 
+            if self.rect.centery <= 150: 
                self.delta = 2
-            elif self.rect.centery > (4*height)/5:
+            elif self.rect.centery > 650:
                self.delta = -2
         elif level == 2:
             rand_xy = random.choice[self.rect.centerx, self.rect.centery]
             rand_xy+=self.delta
-            if rand_xy <= height/5: 
+            if rand_xy <= 150: 
                 self.delta = randint(1,5)
-            elif rand_xy > (4*height)/5:
+            elif rand_xy > 650:
                 self.delta = -randint(1,5)
         
 class Dot(pygame.sprite.Sprite):     
