@@ -70,10 +70,13 @@ class PyManMain:
                     or (event.key == K_DOWN)
                     or (event.key == K_UP)):
                         self.bird.move(event.key)
+                elif event.type == KEYUP:
+                    if event.key == K_SPACE:
+                        self.bird.launch()
             self.bird.update()
 
             """Check for collision"""
-            lstCols = pygame.sprite.spritecollide(self.bird, self.dart_sprites, True)
+            lstCols = pygame.sprite.spritecollide(self.bird, self.dart_sprites, False)
             global points
             points = points + 90*len(lstCols)
 
@@ -122,14 +125,20 @@ class Bird(pygame.sprite.Sprite):
         self.v_y = 0
         self.x_mag = 0
         self.y_mag = 0
+        self.yMove = 0
+        self.xMove = 0
+        self.i = 0
 
     def move(self, key):
         """Move yourself in one of the 4 directions according to key"""
+        self.i += 1
+        #print "inside move "+ str(self.i)
         global last_time
+        moveonce = True
         #rot_image,new_rect = load_image('angry_bird.png',-1)
         if (key == K_RIGHT):
             self.xMove = self.x_dist
-            self.x_pos+=self.xMove
+            self.x_pos=self.xMove
         elif (key == K_LEFT):
             self.xMove = -self.x_dist
             self.x_pos+=self.xMove
@@ -143,27 +152,50 @@ class Bird(pygame.sprite.Sprite):
             self.y_pos+=self.yMove
             """self.image = pygame.transform.rotate(rot_image,-5)
             self.rect = self.image.get_rect(center=self.rect.center)"""
-        elif (key == K_SPACE):
-            #calculate velocity, etc
-            dots = Dot()
-            self.y_mag = dots.rect.center[1]-self.y_pos
-            self.x_mag = dots.rect.center[0]-self.x_pos
-            if self.x_mag == 0:
-                self.x_mag = 0.001
-            #angle = -math.atan(float(y_mag)/x_mag)
-            global delta_t,last_time
-            self.xMove += self.x_mag*delta_t 
-            self.yMove += self.y_mag*delta_t-(5*delta_t**2)
-            #self.v_y -= delta_t*50\
-            self.v_x = self.x_mag*0.05
-            self.v_y = self.y_mag*0.05
-            #print "LAUNCHING!"
-            print 'x_mag is', self.x_mag, 'y_mag is', self.y_mag, 'self.yMove is', self.yMove, 'self.xMove is', self.xMove, 'v_y is', self.v_y, 'v_x is', self.v_x
-            last_time = delta_t
+        print "xpos and ypos ", self.x_pos, " ", self.y_pos
+        # elif (key == K_SPACE):
+        #     if moveonce:
+        #         print 'x_mag is', self.x_mag, 'y_mag is', self.y_mag, 'self.yMove is', self.yMove, 'self.xMove is', self.xMove, 'v_y is', self.v_y, 'v_x is', self.v_x
+            
+        #         #calculate velocity, etc
+        #         dots = Dot()
+        #         self.y_mag = dots.rect.center[1]-self.y_pos
+        #         self.x_mag = dots.rect.center[0]-self.x_pos
+        #         if self.x_mag == 0:
+        #             self.x_mag = 0.001
+        #         #angle = -math.atan(float(y_mag)/x_mag)
+        #         global delta_t,last_time
+        #         self.xMove += self.x_mag*delta_t 
+        #         self.yMove += self.y_mag*delta_t-(5*delta_t**2)
+        #         #self.v_y -= delta_t*50\
+        #         self.v_x = self.x_mag*0.05
+        #         self.v_y = self.y_mag*0.05
+        #         #print "LAUNCHING!"
+        #         moveonce = False
+        #         print 'x_mag is', self.x_mag, 'y_mag is', self.y_mag, 'self.yMove is', self.yMove, 'self.xMove is', self.xMove, 'v_y is', self.v_y, 'v_x is', self.v_x
+        #     last_time = delta_t
             
         self.rect = self.rect.move(self.xMove,self.yMove)
-        print self.rect.center
+        #print self.rect.center
 
+    def launch(self):
+        print 'x_mag is', self.x_mag, 'y_mag is', self.y_mag, 'self.yMove is', self.yMove, 'self.xMove is', self.xMove, 'v_y is', self.v_y, 'v_x is', self.v_x
+        #calculate velocity, etc
+        dots = Dot()
+        self.y_mag = dots.rect.center[1]-self.y_pos
+        self.x_mag = dots.rect.center[0]-self.x_pos
+        if self.x_mag == 0:
+            self.x_mag = 0.001
+        #angle = -math.atan(float(y_mag)/x_mag)
+        #global delta_t,last_time
+        self.xMove += self.x_mag #*delta_t 
+        self.yMove += self.y_mag #*delta_t-(5*delta_t**2)
+        #self.v_y -= delta_t*50\
+        self.v_x = self.x_mag*0.05
+        self.v_y = self.y_mag*0.05
+        #print "LAUNCHING!"
+        self.rect = self.rect.move(self.xMove,self.yMove)
+                
     def in_flight(self):
         return self.v_y != 0
 
@@ -172,10 +204,12 @@ class Bird(pygame.sprite.Sprite):
         self.rect.center = (origin_x,origin_y)
         self.v_x = 0
         self.v_y = 0
-        self.xMove = 0
-        self.yMove = 0
-        self.y_mag = 0
-        self.x_mag = 0
+        #self.xMove = 0
+        # self.yMove = 0
+        # self.y_mag = 0
+        # self.x_mag = 0
+        self.x_pos = 250
+        self.y_pos = 400
 
     def update(self):
         self.xMove = self.v_x
@@ -183,6 +217,7 @@ class Bird(pygame.sprite.Sprite):
         self.rect = self.rect.move(self.xMove,self.yMove)
         global height,width
         if (self.rect.centerx > width) or (self.rect.centerx < 0) or (self.rect.centery > height) or (self.rect.centery < 0):
+            print "inside reset"
             self.reset()
         if self.in_flight():
             self.v_y += 0.2
@@ -196,7 +231,6 @@ class Dart(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.center = (750,400)
-        self.delta = 1
 
     def move_dart(self):
         global level
@@ -214,8 +248,7 @@ class Dart(pygame.sprite.Sprite):
                self.delta = 1
         #elif self.nextLevel == 2:
         
-class Dot(pygame.sprite.Sprite):
-     
+class Dot(pygame.sprite.Sprite):     
     def __init__(self, rect=None):
         pygame.sprite.Sprite.__init__(self) 
         self.image, self.rect = load_image('Center.png',-1)
