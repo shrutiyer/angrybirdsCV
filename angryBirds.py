@@ -68,7 +68,8 @@ class PyBirdMain:
                         self.bird.move(event.key)
                 elif event.type == KEYUP:
                     if event.key == K_SPACE:
-                        self.bird.launch()
+                        if not self.bird.in_flight():
+                            self.bird.launch()
             self.bird.update()
 
             #Check for collision"""
@@ -80,6 +81,7 @@ class PyBirdMain:
             #Checks for collisions and then updates the dart
             self.dart.move_dart()
             if lstCols:
+                self.bird.reset()
                 global level
                 level+=1
                 self.bird.lose_life = False
@@ -189,7 +191,7 @@ class Bird(pygame.sprite.Sprite):
             if self.currentLives == 0:
                 pygame.quit()
         self.lose_life = True
-
+ 
     def update(self):
         """This function constantly updates the rectangle and also xMove and yMove.
         There are also boundary conditions on the dart rectangle to make sure it 
@@ -202,7 +204,7 @@ class Bird(pygame.sprite.Sprite):
             self.reset()
         if self.in_flight():
             self.v_y += 0.2
-        pygame.time.delay(10)
+        pygame.time.delay(5)
 
 class Dart(pygame.sprite.Sprite):
     """The red rectangle which is the dart in the game.
