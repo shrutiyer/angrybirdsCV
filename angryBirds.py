@@ -132,8 +132,6 @@ class Bird(pygame.sprite.Sprite):
 
     def move(self, key):
         """Move yourself in one of the 4 directions according to key"""
-        self.i += 1
-        #print "inside move "+ str(self.i)
         global last_time
         moveonce = True
         #rot_image,new_rect = load_image('angry_bird.png',-1)
@@ -153,7 +151,6 @@ class Bird(pygame.sprite.Sprite):
             self.y_pos+=self.yMove
             """self.image = pygame.transform.rotate(rot_image,-5)
             self.rect = self.image.get_rect(center=self.rect.center)"""
-        print "xpos and ypos ", self.x_pos, " ", self.y_pos
         # elif (key == K_SPACE):
         #     if moveonce:
         #         print 'x_mag is', self.x_mag, 'y_mag is', self.y_mag, 'self.yMove is', self.yMove, 'self.xMove is', self.xMove, 'v_y is', self.v_y, 'v_x is', self.v_x
@@ -217,7 +214,6 @@ class Bird(pygame.sprite.Sprite):
         self.rect = self.rect.move(self.xMove,self.yMove)
         global height,width
         if (self.rect.centerx > width) or (self.rect.centerx < 0) or (self.rect.centery > height) or (self.rect.centery < 0):
-            print "inside reset"
             self.reset()
         if self.in_flight():
             self.v_y += 0.2
