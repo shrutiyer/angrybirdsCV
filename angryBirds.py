@@ -187,10 +187,8 @@ class Bird(pygame.sprite.Sprite):
         #global delta_t,last_time
         self.xMove += self.x_mag #*delta_t 
         self.yMove += self.y_mag #*delta_t-(5*delta_t**2)
-        #self.v_y -= delta_t*50\
         self.v_x = self.x_mag*0.075
         self.v_y = self.y_mag*0.075
-        #print "LAUNCHING!"
         self.rect = self.rect.move(self.xMove,self.yMove)
                 
     def in_flight(self):
@@ -201,10 +199,6 @@ class Bird(pygame.sprite.Sprite):
         self.rect.center = (origin_x,origin_y)
         self.v_x = 0
         self.v_y = 0
-        #self.xMove = 0
-        # self.yMove = 0
-        # self.y_mag = 0
-        # self.x_mag = 0
         self.x_pos = 250
         self.y_pos = 400
 
@@ -244,12 +238,12 @@ class Dart(pygame.sprite.Sprite):
             elif self.rect.centery > (4*height)/5:
                self.delta = -2
         elif level == 2:
-            rand_xy = random.choice[self.rect.centerx, self.rect.centery]
-            rand_xy+=self.delta
-            if rand_xy <= height/5: 
-                self.delta = randint(1,5)
-            elif rand_xy > (4*height)/5:
-                self.delta = -randint(1,5)
+            self.rect.centerx+=self.delta
+            self.rect.centery+=self.delta
+            if self.rect.centerx < width/6 or self.rect.centery <= height/6: 
+                self.delta = random.randint(1,10)
+            elif self.rect.centerx >= (4*width)/5 and self.rect.centery > (5*height)/6:
+                self.delta = -random.randint(1,10)
         
 class Dot(pygame.sprite.Sprite):     
     def __init__(self, rect=None):
